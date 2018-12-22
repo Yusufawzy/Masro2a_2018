@@ -1,5 +1,3 @@
-package IS_IT_LOST;
-
 import java.util.Vector;
 interface Iquiries{
     void AddQuestions() ;

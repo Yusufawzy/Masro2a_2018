@@ -1,4 +1,3 @@
-package IS_IT_LOST;
 
 public class Address {
     private String country;

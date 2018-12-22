@@ -1,11 +1,10 @@
-package IS_IT_LOST;
-
 import java.util.Scanner;
 import java.util.Vector;
 
-enum Categories{Cloths, Electronics, Jewelries, Kids, PersonalThings, Wallet}
+enum Categories {Cloths, Electronics, Jewelries, Kids, PersonalThings, Wallet}
 
 public class Post {
+    static int count = 0;
     private int PostDBIdx;
     private String Title;
     private String Description;
@@ -42,25 +41,23 @@ public class Post {
         this.category = category;
     }
 
-    public Post(String title, String description, String city, int postID, int userID, int category) {
+    public Post(String title, String description, String city, int userID) {
         Title = title;
         Description = description;
         City = city;
-        PostID = postID;
         UserID = userID;
-        this.category = category;
+        this.PostID = count++;
         //A variable to tell me where my post are in the DB
     }
 
     public Post() {
     }
 
-    void Display(){
-        System.out.println(this.toString()); //prints info of the post
-    }
-    @Override
-    public String toString() {
-        return super.toString();
+    void Display() {
+        System.out.println("=====PostDetails=====");
+        System.out.println("The Post Title is "+getTitle());
+        System.out.println("The Post Decription is "+getDescription());
+        System.out.println("THe Post City is "+getCity());
     }
 
     public int getPostDBIdx() {
@@ -87,37 +84,49 @@ public class Post {
         return UserID;
     }
 
-    public int getCategory() {
-        return category;
-    }
+
 }
 
 interface IPostService {
-    Post managePost(User u , Post p);
-    Post addPost(User u, Post p); //what if add how to add
+    void managePost(User u, Post p);
+
+    Post addPost(User u); //what if add how to add
+
     Post removePost(User u, Post p);
+
     Post viewPost(User u, Post p);
+
     Post UpdatePost(User u, Post p);
 }
 
-class  PostService implements IPostService {
+class PostService implements IPostService {
     static PostsDB postsDB;
+
     @Override
-    public Post managePost(User u, Post p) {
-        //if want to add then add null
-        return p;
+    public void managePost(User u, Post p) {
+        System.out.println("1.Add a new Post");
+        System.out.println("2.Remove Post");
+        System.out.println("3.Modify Post");
+        int x = input.nextInt();
+        if (x == 1)
+            addPost(u);
+        new UserWindow().ShowMenu(u);
     }
 
     @Override
-    public Post addPost(User u, Post p) {
+    public Post addPost(User u) {
         Scanner input = new Scanner(System.in);
-        p.setTitle(input.nextLine());
-        p.setDescription(input.nextLine());
-        //We need to handle here how to increase the ids of the post among the whole application
-        //We also wants to find how to use the enum by inputting its ID or num to return a string aw al3ks
-        //Add Photo
-        p.setPostDBIdx( PostsDB.getAllPosts().size() ); //the idx is like a pointer to this place in the future need to use
-        PostsDB.getAllPosts().add(p);//we add all to the PostDB, we don't have any methods in the database.
+        System.out.println("Enter Post's Title");
+        var title = (input.nextLine());
+        System.out.println("Enter Post's description");
+        var describe = (input.nextLine());
+        System.out.println("Enter City");
+        var city = input.nextLine();
+        var p = new Post(title, describe, city, u.getUserID());
+
+        p.setPostDBIdx(PostsDB.getAllPosts().size()); //the idx is like a pointer to this place in the future need to use
+        /*add to the PostDB*/
+        PostsDB.getAllPosts().add(p);
         return p;
     }
 
@@ -135,49 +144,77 @@ class  PostService implements IPostService {
     public Post UpdatePost(User u, Post p) {
         return p;
     }
-    static void Display(){
+
+    static void Display() {
         for (Post Post : postsDB.getAllPosts()) {
             System.out.println(Post);
         }
     }
+
     private static Scanner input = new Scanner(System.in);
+
     static void search() {
         Vector <Post> SearchRes = new Vector <>();
-        int choice =input.nextInt();
-        System.out.println("Save your Post and User IDs if you want to communicate with this person");
+        System.out.println("1.Search By Description");
+        System.out.println("2.Search By Title");
+        System.out.println("3.Search By City");
+        int choice = input.nextInt();
         if (choice == 1) {
-            SearchRes = searchByCategory();
+            SearchRes = searchByDescription();
         } else if (choice == 2) {
             SearchRes = searchByTitle();
         } else if (choice == 3) {
             SearchRes = searchByCity();
         }
-        //what if we want to communicate
     }
 
     private static Vector <Post> searchByTitle() {
         Vector <Post> SearchRes = new Vector <>();
+        System.out.println("Enter The Title");
+        input = new Scanner(System.in);
+
         String a = input.nextLine();
-        //we will search in POSTSDB rather than TrackLists
-        /*for (int i = 0; i < TrackList.size(); i++) {
-            if (TrackList.elementAt(i).Title.contains(a)){ // if any of the posts has this title then add it
-                SearchRes.add(TrackList.elementAt(i));
-            }
-        }*/
+        for (Post post : PostsDB.getAllPosts()) {
+            if (post.getTitle().equals(a)) SearchRes.add(post);
+        }
         //printing the Search Result posts
-        for (int i = 0; i < SearchRes.size(); i++) {
+        if (SearchRes.size() == 0) System.out.println("No matches found");
+        else for (int i = 0; i < SearchRes.size(); i++) {
             SearchRes.elementAt(i).Display();
         }
         return SearchRes;
     }
 
-    private static Vector <Post> searchByCategory() {
+    private static Vector <Post> searchByDescription() {
         Vector <Post> SearchRes = new Vector <>();
+        System.out.println("Enter your keyword");
+        input = new Scanner(System.in);
+
+        String a = input.nextLine();
+        for (Post post : PostsDB.getAllPosts()) {
+            if (post.getDescription().contains(a)) SearchRes.add(post);
+        }
+        //printing the Search Result posts
+        if (SearchRes.size() == 0) System.out.println("No matches found");
+        else for (int i = 0; i < SearchRes.size(); i++) {
+            SearchRes.elementAt(i).Display();
+        }
         return SearchRes;
     }
 
     private static Vector <Post> searchByCity() {
         Vector <Post> SearchRes = new Vector <>();
+        System.out.println("Enter your city name");
+         input = new Scanner(System.in);
+        String a = input.nextLine();
+        for (Post post : PostsDB.getAllPosts()) {
+            if (post.getCity().equals(a)) SearchRes.add(post);
+        }
+        //printing the Search Result posts
+        if (SearchRes.size() == 0) System.out.println("No matches found");
+        else for (int i = 0; i < SearchRes.size(); i++) {
+            SearchRes.elementAt(i).Display();
+        }
         return SearchRes;
 
     }
@@ -186,7 +223,7 @@ class  PostService implements IPostService {
 
 class PostsDB {
 
-    static final Vector<Post> AllPosts= new Vector <>(); //It's declared as final so we can't set it anytime
+    static final Vector <Post> AllPosts = new Vector <>(); //It's declared as final so we can't set it anytime
 
     public static Vector <Post> getAllPosts() {
         return AllPosts;
