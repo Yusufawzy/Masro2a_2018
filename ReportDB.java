@@ -1,4 +1,3 @@
-package IS_IT_LOST;
 import java.util.Vector;
 public class ReportDB{
     private  Vector <String> Reports;

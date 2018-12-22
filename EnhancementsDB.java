@@ -1,5 +1,3 @@
-package IS_IT_LOST;
-
 import java.util.Vector;
 
 public class EnhancementsDB{
@@ -14,7 +12,7 @@ interface  IEnhancement{
     void UpdateEnhancement();
     void showOptions();
 }
-class EnahncementService implements  IEnhancement{
+class EnhancementService implements  IEnhancement{
     EnhancementsDB enhancementsDB;
     public void AddEnhancement(){}
     public void RemoveEnhancement(){}
